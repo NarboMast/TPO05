@@ -13,35 +13,30 @@ import java.time.format.DateTimeFormatter;
 
 @Controller
 public class TimeController {
-    public static final ZoneId defaultTimeZone = ZoneId.systemDefault();
-    public static final String defaultTimeFormatter = "hh:mm:ss.SSSS yyyy/MM/dd";
+    private static final String DEFAULT_TIME_ZONE = "Europe/Warsaw";
+    private static final String DEFAULT_TIME_FORMAT = "hh:mm:ss.SSSS yyyy/MM/dd";
 
-    @PostMapping("/current-time")
+    @GetMapping("/current-time")
     @ResponseBody
     public String current_time(
-            @RequestParam(required = false) String timeZone,
-            @RequestParam(required = false) String format
+            @RequestParam(name = "timeZone", required = false, defaultValue = DEFAULT_TIME_ZONE) String timeZone,
+            @RequestParam(name = "timeFormat", required = false, defaultValue = DEFAULT_TIME_FORMAT) String format
             ) {
-        ZonedDateTime zdt;
-        DateTimeFormatter formatter;
-        if(!timeZone.isEmpty() || !format.isEmpty()) {
-            try{
-                zdt = ZonedDateTime.now(ZoneId.of(timeZone));
-                formatter = DateTimeFormatter.ofPattern(format);
-                return timeZone + ": " + zdt.format(formatter);
-            } catch (Exception e){
-                zdt = ZonedDateTime.now(defaultTimeZone);
-                formatter = DateTimeFormatter.ofPattern(defaultTimeFormatter);
-                return "Invalid time zone provided. Defaulting to system time zone" +
-                        "(" + defaultTimeZone +  "): " +
-                        zdt.format(formatter);
-            }
-        } else {
-            zdt = ZonedDateTime.now(defaultTimeZone);
-            formatter = DateTimeFormatter.ofPattern(defaultTimeFormatter);
-            return "Default time provided" + "(" + defaultTimeZone +  "): " +
-                    zdt.format(formatter);
+        String res;
+        try{
+            ZonedDateTime zdt = ZonedDateTime.now(ZoneId.of(timeZone));
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
+            return timeZone + ": " + zdt.format(formatter);
+        } catch (Exception e){
+            res = "<span style='color: red;'>Invalid time zone provided. Defaulting to system time zone</span><br>";
         }
+        return res + "(" + DEFAULT_TIME_ZONE +  "): " +
+                getDefaultParameters();
+    }
+
+    public String getDefaultParameters(){
+        return ZonedDateTime.now(ZoneId.of(DEFAULT_TIME_ZONE))
+                .format(DateTimeFormatter.ofPattern(DEFAULT_TIME_FORMAT));
     }
 
     @GetMapping("/current-year")
