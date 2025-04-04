@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: s31641-TPO05
+  mvc:
+    pathmatch:
+      matching-strategy: ANT_PATH_MATCHER
